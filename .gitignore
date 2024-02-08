@@ -1,0 +1,29 @@
+# Logs
+logs
+*.log
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# User-specific files
+npm-debug.log
+.npmrc
+yarn-error.log
+
+# Environment variables
+.env
+
+# Editor directories and files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Package-lock files
+package-lock.json
+yarn.lock
