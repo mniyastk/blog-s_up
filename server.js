@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const userRoute = require("./routes/userRoute");
 const mongoose = require("mongoose");
+
 require("dotenv").config();
 
 mongoose
@@ -15,6 +16,16 @@ app.use(express.json());
 
 app.use("/user", userRoute);
 
+
+
+const authorRoute = require("./routes/authorRoute");
+
+
+app.use("/author", authorRoute);
+
+mongoose.connect("mongodb://localhost:27017/blogsup");
+
 app.listen(3005, () => {
   console.log("server running ");
 });
+
