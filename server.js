@@ -1,6 +1,9 @@
 const express = require("express");
 const app = express();
 const userRoute = require("./routes/userRoute");
+const authorRoute = require("./routes/authorRoute");
+
+
 const mongoose = require("mongoose");
 
 require("dotenv").config();
@@ -8,7 +11,9 @@ require("dotenv").config();
  
 
 mongoose
-  .connect("mongodb+srv://blogsup:09779346@cluster0.9iogxhx.mongodb.net/blog'sUp")
+  .connect(
+    "mongodb+srv://blogsup:09779346@cluster0.9iogxhx.mongodb.net/blog'sUp"
+  )
   .then(() => console.log("db connected"))
   .catch((err) => {
     console.log(err);
@@ -20,8 +25,6 @@ app.use("/user", userRoute);
 
 
 
-const authorRoute = require("./routes/authorRoute");
-
 
 
 app.use("/author", authorRoute);
@@ -31,4 +34,4 @@ app.listen(3005, () => {
  
 }); 
  
- 
+
