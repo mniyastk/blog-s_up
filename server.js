@@ -7,6 +7,7 @@ const mongoose = require("mongoose");
 
 require("dotenv").config();
 
+
 mongoose
   .connect(
     "mongodb+srv://blogsup:09779346@cluster0.9iogxhx.mongodb.net/blog'sUp"
@@ -17,8 +18,6 @@ mongoose
   });
 
 app.use(express.json());
-
-app.use("/user", userRoute);
 
 app.use("/author", authorRoute);
 

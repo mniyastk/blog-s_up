@@ -1,6 +1,7 @@
 const authorModel = require("../models/authorShema");
 const bcrypt = require("bcrypt");
 const blogModel = require("../models/blogShema");
+const { createToken } = require("../helpers/createToken");
 
 const authorRegister = async (req, res) => {
   const data = req.body;
@@ -21,13 +22,14 @@ const authorRegister = async (req, res) => {
 };
 
 const authorLogin = async (req, res) => {
-  const data = req.body;
-  const email = data.email;
-  const password = data.password;
+  const { email, password } = req.body;
+
   const user = await authorModel.findOne({ email: email });
   if (user) {
     const auth = await bcrypt.compare(password, user.password);
     if (auth) {
+      const authorToken = createToken(email);
+      res.cookie("authorToken", authorToken, { httpOnly: true });
       res.status(200).send("Login Successfully...");
     } else {
       res.status(404).send("Incorrect Username or Password");
@@ -36,22 +38,40 @@ const authorLogin = async (req, res) => {
 };
 
 const getAccount = async (req, res) => {
-  const id = req.params;
+  const id = req.params.id;
   const user = await authorModel.findOne({ authorId: id });
   res.status(200).send(user);
 };
 
 const createBlog = async (req, res) => {
+  const authorId = req.params.id;
   const { title, content, category, tags } = req.body;
   const newBlog = new blogModel({
     title: title,
     content: content,
     category: category,
     tags: tags,
+    author: authorId,
   });
+
+  await authorModel.findOneAndUpdate(
+    { authorId: authorId },
+    { $push: { blogs: newBlog.blogId } }
+  );
 
   const newBlogPost = await blogModel.create(newBlog);
   res.send(newBlogPost);
+};
+
+const postedBolgs = async (req, res) => {
+  const id = req.params.id;
+  const blogs = await blogModel.find({ author: id });
+
+  if (blogs) {
+    res.status(200).send(blogs);
+  } else {
+    res.status(404).send("Blogs not found");
+  }
 };
 const blogById = async (req, res) => {
   const id = req.params.id;
@@ -97,6 +117,7 @@ module.exports = {
   authorLogin,
   getAccount,
   createBlog,
+  postedBolgs,
   blogById,
   deleteBlog,
   viewLikes,
