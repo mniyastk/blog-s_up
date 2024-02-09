@@ -2,13 +2,13 @@ const express = require("express");
 const app = express();
 const userRoute = require("./routes/userRoute");
 const authorRoute = require("./routes/authorRoute");
-
-
+const adminRoute = require("./routes/adminRoute");
+const cookie = require("cookie-parser");
 const mongoose = require("mongoose");
 
 require("dotenv").config();
 
- 
+app.use(cookie());
 
 mongoose
   .connect(
@@ -21,17 +21,10 @@ mongoose
 
 app.use(express.json());
 
-app.use("/user", userRoute);
-
-
-
-
-
+app.use("/user", userRoute); 
+app.use("/admin", adminRoute);
 app.use("/author", authorRoute);
 
 app.listen(3005, () => {
   console.log("server running ");
- 
-}); 
- 
-
+});

@@ -17,6 +17,10 @@ const blogsShema = new mongoose.Schema({
   category: {
     type: [String],
   },
+  author: {
+    type: String,
+    ref: "author",
+  },
   comments: [
     {
       content: String,

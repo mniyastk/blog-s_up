@@ -11,21 +11,22 @@ const authorSchema = new mongose.Schema({
   password: {
     type: String,
   },
-  blogs: [
+  blogsId: [
     {
-      type: mongose.Schema.Types.ObjectId,
-      ref: "blogs",
+      type: String,
+      ref: "posts",
     },
   ],
   authorId: {
     type: String,
-    default:Date.now()
+    default: Date.now(),
   },
 });
 authorSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     return next();
   }
+  a;
   try {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(this.password, salt);
@@ -38,4 +39,3 @@ authorSchema.pre("save", async function (next) {
 
 const author = mongose.model("author", authorSchema);
 module.exports = author;
-        
