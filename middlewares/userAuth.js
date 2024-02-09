@@ -7,10 +7,10 @@ module.exports.userAuth = (req, res, next) => {
   if (token) {
     jwt.verify(token, secret, (err) => {
       if (err) {
-        res.status(401).send("Unautherized");
+        res.status(401).send("Unauthorized");
       }
     });
   } else {
-    res.status(401).send("Unautherized");
+    res.status(401).send("Unauthorized");
   }
 };
