@@ -2,13 +2,11 @@ const express = require("express");
 const app = express();
 const userRoute = require("./routes/userRoute");
 const authorRoute = require("./routes/authorRoute");
-const cookieParser = require("cookie-parser");
 
 const mongoose = require("mongoose");
 
 require("dotenv").config();
 
-app.use(cookieParser());
 mongoose
   .connect(
     "mongodb+srv://blogsup:09779346@cluster0.9iogxhx.mongodb.net/blog'sUp"
