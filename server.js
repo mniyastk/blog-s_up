@@ -3,9 +3,12 @@ const app = express();
 const userRoute = require("./routes/userRoute");
 const authorRoute = require("./routes/authorRoute");
 
+
 const mongoose = require("mongoose");
 
 require("dotenv").config();
+
+ 
 
 mongoose
   .connect(
@@ -20,9 +23,15 @@ app.use(express.json());
 
 app.use("/user", userRoute);
 
-app.use("/author", authorRoute);
 
+
+
+
+app.use("/author", authorRoute);
 
 app.listen(3005, () => {
   console.log("server running ");
-});
+ 
+}); 
+ 
+
