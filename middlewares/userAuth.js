@@ -8,6 +8,8 @@ module.exports.userAuth = (req, res, next) => {
     jwt.verify(token, secret, (err) => {
       if (err) {
         res.status(401).send("Unautherized");
+      } else {
+        next();
       }
     });
   } else {
