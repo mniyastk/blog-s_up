@@ -1,6 +1,33 @@
+const { createToken } = require("../helpers/createToken");
+const User = require("../models/userShema");
+const bcrypt = require("bcrypt");
+module.exports.register = async (req, res) => {
+  const { username, email, password, confirmPassword } = req.body;
+  const userExist = await User.findOne({ email: email });
+  if (!userExist) {
+    await User.create(req.body);
+    res.status(200).send("Register success");
+  } else {
+    res.status(409).send("User already exist");
+  }
+};
+
 module.exports.login = async (req, res) => {
-  const { username, password } = req.body;
-  res.status(200).json({ user: username, status: "success" });
+  const { email, password } = req.body;
+
+  const userExist = await User.findOne({ email: email });
+  if (userExist) {
+    const auth = await bcrypt.compare(password, userExist.password);
+    if (auth) {
+      const token = createToken(email);
+      res.cookie("userToken", token, { httpOnly: true });
+      res.status(200).send("Login success");
+    } else {
+      res.status(404).send("Incorrect email or password");
+    }
+  } else {
+    res.status(404).send("Incorrect email or password");
+  }
 };
 
 module.exports.getPosts = async (req, res) => {
