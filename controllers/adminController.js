@@ -81,8 +81,6 @@ const authorById = async (req, res) => {
   const id = req.params.id;
   const author = await authorModel.findOne({ authorId: id });
   if (author) {
-
-    
     res.status(200).send(author);
   } else {
     res.status(404).send("Author Not found");
@@ -119,7 +117,15 @@ const blogByCategory = async (req, res) => {
     res.status(404).send("This Category has not blogs");
   }
 };
-
+const blogsBYAuthor = async (req, res) => {
+  const id = req.params.id;
+  const authorBlogs = authorModel.findOne({ authorId: id }).populate("posts");
+  if (authorBlogs) {
+    res.status(200).send(authorBlogs);
+  } else {
+    res.status(404).send(authorBlogs);
+  }
+};
 module.exports = {
   adminLogin,
   allUsers,
@@ -133,4 +139,5 @@ module.exports = {
   deleteAuthor,
   stats,
   blogByCategory,
+  blogsBYAuthor,
 };

@@ -15,4 +15,5 @@ router.delete("author/:id", adminAuth, adminControl.deleteAuthor);
 router.delete("blog/:id", adminAuth, adminControl.deleteBlog);
 router.get("/stats", adminAuth, adminControl.stats);
 router.get("/blogs/:category", adminAuth, adminControl.blogByCategory);
+router.get("/authorblogs/:id", adminControl.blogsBYAuthor);
 module.exports = router;
