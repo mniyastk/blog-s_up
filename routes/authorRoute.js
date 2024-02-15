@@ -13,3 +13,4 @@ router.delete("/removeblog/:id", authorAuth, authorController.deleteBlog);
 router.get("/likes/:id", authorAuth, authorController.viewLikes);
 router.get("/comments/:id", authorAuth, authorController.viewComments);
 module.exports = router;
+ 

@@ -119,11 +119,14 @@ const blogByCategory = async (req, res) => {
 };
 const blogsBYAuthor = async (req, res) => {
   const id = req.params.id;
-  const authorBlogs = authorModel.findOne({ authorId: id }).populate("posts");
+  const authorBlogs = await authorModel
+    .findOne({ authorId: id })
+    .populate("blogsId"); 
+
   if (authorBlogs) {
     res.status(200).send(authorBlogs);
-  } else {
-    res.status(404).send(authorBlogs);
+  } else { 
+    res.status(404).send("Blogs not found");
   }
 };
 module.exports = {
