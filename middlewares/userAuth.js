@@ -7,7 +7,7 @@ module.exports.userAuth = (req, res, next) => {
   if (token) {
     jwt.verify(token, secret, (err) => {
       if (err) {
-        res.status(401).send("Unauthorized");
+
       }
     });
   } else {

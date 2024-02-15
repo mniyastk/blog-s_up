@@ -1,6 +1,8 @@
 const { createToken } = require("../helpers/createToken");
 const User = require("../models/userShema");
+const Blogs = require("../models/blogShema");
 const bcrypt = require("bcrypt");
+
 module.exports.register = async (req, res) => {
   const { username, email, password, confirmPassword } = req.body;
   const userExist = await User.findOne({ email: email });
@@ -30,14 +32,39 @@ module.exports.login = async (req, res) => {
   }
 };
 
-module.exports.getPosts = async (req, res) => {
-  res.send("posts");
+module.exports.getBlogs = async (req, res) => {
+  const blogs = await Blogs.find();
+  res.send(blogs);
 };
-module.exports.getPostsById = async (req, res) => {
-  res.send("i am from posts ");
+module.exports.getBlogById = async (req, res) => {
+  const blogId = req.params.id;
+  console.log(typeof blogId);
+  const blog = await Blogs.findOne({ blogId: blogId });
+  console.log(blog);
+  if (blog) {
+    res.status(200).send(blog);
+  } else {
+    res.status(404).send("blog not found");
+  }
 };
-module.exports.getPostsByCategory = async (req, res) => {
-  res.send("i am from this category");
+module.exports.addComment = async (req, res) => {
+  const { blogId, userId } = req.params;
+
+  const comment = await Blogs.findOneAndUpdate(
+    { blogId: blogId },
+    {
+      $push: {
+        comments: { content: "ksfkhkh", created: Date.now(), postedBy: userId },
+      },
+    }
+  );
+  res.status(200).send("Comment posted");
+};
+
+module.exports.getBlogsByCategory = async (req, res) => {
+  const category = req.params.category;
+  const blogs = await Blogs.aggregate[{ $match: { category: category } }];
+  console.log(blogs);
 };
 
 module.exports.getWatchingHistory = async (req, res) => {
