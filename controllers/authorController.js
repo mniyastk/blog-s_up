@@ -56,7 +56,7 @@ const createBlog = async (req, res) => {
 
   await authorModel.findOneAndUpdate(
     { authorId: authorId },
-    { $push: { blogs: newBlog.blogId } }
+    { $push: { blogsId: newBlog._id } }
   );
 
   const newBlogPost = await blogModel.create(newBlog);
