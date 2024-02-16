@@ -7,8 +7,9 @@ router.post("/register", userController.register);
 router.post("/login", userController.login);
 router.get("/blogs", userAuth, userController.getBlogs);
 router.get("/blog/:id", userController.getBlogById);
-router.get("/blog/:category", userController.getBlogsByCategory);
+router.get("/blogs/:category", userController.getBlogsByCategory);
 router.post("/comment/:blogId/:userId", userController.addComment);
+router.post("/like/:blogId/:userId", userController.addLike);
 router.get("/blog/history", userController.getWatchingHistory);
 router.get("/auther/:id", userController.getAuther);
 
