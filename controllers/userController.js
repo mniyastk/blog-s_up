@@ -39,8 +39,8 @@ module.exports.getBlogs = async (req, res) => {
 };
 module.exports.getBlogById = async (req, res) => {
   const blogId = req.params.id;
-  console.log(typeof blogId);
-  const blog = await Blogs.findOne({ blogId: blogId });
+  console.log( blogId);
+  const blog = await Blogs.findOne({ _id: blogId });
   console.log(blog);
   if (blog) {
     res.status(200).send(blog);
