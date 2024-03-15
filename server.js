@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const cors = require("cors");
 const userRoute = require("./routes/userRoute");
 const authorRoute = require("./routes/authorRoute");
 const adminRoute = require("./routes/adminRoute");
@@ -8,6 +9,14 @@ const mongoose = require("mongoose");
 
 require("dotenv").config();
 app.use(cookieParser());
+
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
+
 mongoose
   .connect(
     "mongodb+srv://blogsup:09779346@cluster0.9iogxhx.mongodb.net/blog'sUp"
