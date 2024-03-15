@@ -34,7 +34,6 @@ module.exports.login = async (req, res) => {
 };
 
 module.exports.getBlogs = async (req, res) => {
-  console.log("kkjkjk");
   const blogs = await Blogs.find();
   res.send(blogs);
 };
