@@ -25,19 +25,25 @@ module.exports.login = async (req, res) => {
     if (auth) {
       const token = createToken(email);
       res.cookie("userToken", token, { httpOnly: true });
-      res.status(200).send("Login success");
+      res
+        .status(200)
+        .send({ Messg: "Login success", token: token, accType: "user" });
     } else {
       res.status(404).send("Incorrect email or password");
     }
-  } else {
+  } else if (authorExist) {
     const auth = await bcrypt.compare(password, authorExist.password);
     if (auth) {
       const token = createToken(email);
       res.cookie("authorToken", token, { httpOnly: true });
-      res.status(200).send("Login success");
+      res
+        .status(200)
+        .send({ Messg: "Login success", token: token, accType: "author" });
     } else {
       res.status(404).send("Incorrect email or password");
     }
+  } else {
+    res.status(404).send({ Messg: "Incorrect email or password" });
   }
 };
 
