@@ -6,14 +6,9 @@ const authorRoute = require("./routes/authorRoute");
 const adminRoute = require("./routes/adminRoute");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
-const cors = require("cors");
+ 
 
-app.use(
-  cors({
-    origin: "http://localhost:3000",
-    credentials: true,
-  })
-);
+ 
 require("dotenv").config();
 app.use(cookieParser());
 
