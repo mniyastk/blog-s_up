@@ -19,28 +19,41 @@ module.exports.login = async (req, res) => {
   const { email, password } = req.body;
 
   const userExist = await User.findOne({ email: email });
+  const authorExist = await Author.findOne({ email: email });
   if (userExist) {
     const auth = await bcrypt.compare(password, userExist.password);
     if (auth) {
       const token = createToken(email);
       res.cookie("userToken", token, { httpOnly: true });
-      res.status(200).send("Login success");
+      res
+        .status(200)
+        .send({ Messg: "Login success", token: token, accType: "user" });
+    } else {
+      res.status(404).send("Incorrect email or password");
+    }
+  } else if (authorExist) {
+    const auth = await bcrypt.compare(password, authorExist.password);
+    if (auth) {
+      const token = createToken(email);
+      res.cookie("authorToken", token, { httpOnly: true });
+      res
+        .status(200)
+        .send({ Messg: "Login success", token: token, accType: "author" });
     } else {
       res.status(404).send("Incorrect email or password");
     }
   } else {
-    res.status(404).send("Incorrect email or password");
+    res.status(404).send({ Messg: "Incorrect email or password" });
   }
 };
 
 module.exports.getBlogs = async (req, res) => {
-  console.log("kkjkjk");
   const blogs = await Blogs.find();
   res.send(blogs);
 };
 module.exports.getBlogById = async (req, res) => {
   const blogId = req.params.id;
-  console.log( blogId);
+  console.log(blogId);
   const blog = await Blogs.findOne({ _id: blogId });
   console.log(blog);
   if (blog) {
