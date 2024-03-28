@@ -25,9 +25,12 @@ module.exports.login = async (req, res) => {
     if (auth) {
       const token = createToken(email);
       res.cookie("userToken", token, { httpOnly: true });
-      res
-        .status(200)
-        .send({ Messg: "Login success", token: token, accType: "user" });
+      res.status(200).send({
+        Messg: "Login success",
+        token: token,
+        accType: "user",
+        user: userExist,
+      });
     } else {
       res.status(404).send("Incorrect email or password");
     }
@@ -36,9 +39,12 @@ module.exports.login = async (req, res) => {
     if (auth) {
       const token = createToken(email);
       res.cookie("authorToken", token, { httpOnly: true });
-      res
-        .status(200)
-        .send({ Messg: "Login success", token: token, accType: "author" });
+      res.status(200).send({
+        Messg: "Login success",
+        token: token,
+        accType: "author",
+        user: authorExist,
+      });
     } else {
       res.status(404).send("Incorrect email or password");
     }
@@ -47,15 +53,19 @@ module.exports.login = async (req, res) => {
   }
 };
 
+module.exports.logout = async (req, res) => {
+  // const cookie = res.cookie.userToken
+  res.cookie("userToken", "", { maxAge: 1 });
+  res.send("success");
+};
+
 module.exports.getBlogs = async (req, res) => {
   const blogs = await Blogs.find();
   res.send(blogs);
 };
 module.exports.getBlogById = async (req, res) => {
   const blogId = req.params.id;
-  console.log(blogId);
-  const blog = await Blogs.findOne({ _id: blogId });
-  console.log(blog);
+  const blog = await Blogs.findOne({ _id: blogId }).populate("comments.postedby")
   if (blog) {
     res.status(200).send(blog);
   } else {
@@ -64,10 +74,11 @@ module.exports.getBlogById = async (req, res) => {
 };
 module.exports.addComment = async (req, res) => {
   const { blogId, userId } = req.params;
-  const content = req.body.content;
-  const user = await User.findOne({ userId: userId });
+  const content = req.body.comment;
+  console.log(content);
+  const user = await User.findOne({ _id: userId });
   const comment = await Blogs.findOneAndUpdate(
-    { blogId: blogId },
+    { _id: blogId },
     {
       $push: {
         comments: {
