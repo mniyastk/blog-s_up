@@ -65,7 +65,9 @@ module.exports.getBlogs = async (req, res) => {
 };
 module.exports.getBlogById = async (req, res) => {
   const blogId = req.params.id;
-  const blog = await Blogs.findOne({ _id: blogId }).populate("comments.postedby")
+  const blog = await Blogs.findOne({ _id: blogId }).populate(
+    "comments.postedby"
+  );
   if (blog) {
     res.status(200).send(blog);
   } else {
@@ -75,7 +77,6 @@ module.exports.getBlogById = async (req, res) => {
 module.exports.addComment = async (req, res) => {
   const { blogId, userId } = req.params;
   const content = req.body.comment;
-  console.log(content);
   const user = await User.findOne({ _id: userId });
   const comment = await Blogs.findOneAndUpdate(
     { _id: blogId },
@@ -91,9 +92,28 @@ module.exports.addComment = async (req, res) => {
   );
   res.status(200).send("Comment posted");
 };
+
+module.exports.editComment = async (req, res) => {
+  const { blogId, userId } = req.params;
+  const { comment } = req.body;
+  const user = await User.findOne({ _id: userId });
+  await Blogs.findOneAndUpdate(
+    { _id: blogId },
+    {
+      $push: {
+        comments: {
+          content: content,
+          created: Date.now(),
+          postedby: user._id,
+        },
+      },
+    }
+  );
+};
+
 module.exports.addLike = async (req, res) => {
   const { blogId, userId } = req.params;
-  
+
   const user = await User.findOne({ userId: userId });
   const blog = await Blogs.findOne({ blogId: blogId });
   console.log(user._id);
