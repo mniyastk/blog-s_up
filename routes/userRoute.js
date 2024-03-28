@@ -4,7 +4,8 @@ const userController = require("../controllers/userController");
 const { userAuth } = require("../middlewares/userAuth");
 
 router.post("/register", userController.register);
-router.post("/login", userController.login);
+router.post("/login", userController.login); 
+router.delete("/signout", userController.logout); 
 router.get("/blogs", userController.getBlogs);
 router.get("/blog/:id", userController.getBlogById);
 router.get("/blogs/:category", userController.getBlogsByCategory);
