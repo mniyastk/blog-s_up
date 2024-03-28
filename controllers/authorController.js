@@ -2,6 +2,7 @@ const authorModel = require("../models/authorShema");
 const bcrypt = require("bcrypt");
 const blogModel = require("../models/blogShema");
 const { createToken } = require("../helpers/createToken");
+const { uploadFile } = require("../s3");
 
 const authorRegister = async (req, res) => {
   const data = req.body;
@@ -44,23 +45,54 @@ const getAccount = async (req, res) => {
 };
 
 const createBlog = async (req, res) => {
-  const authorId = req.params.id;
-  const { title, content, category, tags } = req.body;
-  const newBlog = new blogModel({
-    title: title,
-    content: content,
-    category: category,
-    tags: tags,
-    author: authorId,
-  });
+   
+  const { title, content, category, tags, image } = req.body;
 
-  await authorModel.findOneAndUpdate(
-    { authorId: authorId },
-    { $push: { blogsId: newBlog._id } }
-  );
+ res.send(req.body)
 
-  const newBlogPost = await blogModel.create(newBlog);
-  res.send(newBlogPost);
+  // const uploaded = await uploadFile(image);
+  // console.log(uploaded);
+  // const uploadParams = {
+  //   Bucket: "blogsup",
+  //   Key: "https://console.cloudinary.com/console/c-37184aaaa09eb786e4aaa2a402ef45/media_library/homepage/asset/86bd625596c4f7796862e221fcb17629/manage?context=manage",
+  //   Body: "https://console.cloudinary.com/console/c-37184aaaa09eb786e4aaa2a402ef45/media_library/homepage/asset/86bd625596c4f7796862e221fcb17629/manage?context=manage",
+
+  // };
+
+  // s3.upload(uploadParams, (err, data) => {
+  //   if (err) {
+  //     console.error("Error uploading file:", err);
+  //   } else {
+  //     console.log("File uploaded successfully:", data.Location);
+  //   }
+  // });
+
+  // (async () => {
+  //   await s3
+  //     .putObject({
+  //       Body: "hello  world",
+  //       Bucket: "blogs-up",
+  //       Key: "sample.txt",
+  //     })
+  //     .promise();
+  // })();
+
+  // const newBlog = new blogModel({
+  //   title: title,
+  //   content: content,
+  //   category: category,
+  //   tags: tags,
+  //   author: authorId,
+  //   image: image,
+  // });
+
+  // await authorModel.findOneAndUpdate(
+  //   { authorId: authorId },
+  //   { $push: { blogsId: newBlog._id } }
+  // );
+
+  // const newBlogPost = await blogModel.create(newBlog);
+  // res.send(newBlogPost);
 };
 
 const postedBolgs = async (req, res) => {

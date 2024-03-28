@@ -7,13 +7,14 @@ const blogsShema = new mongoose.Schema({
   },
   title: {
     type: String,
+    
   },
   content: {
     type: String,
   },
   image: {
     type: String,
-  },
+  },  
   category: {
     type: String,
   },
