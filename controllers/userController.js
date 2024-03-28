@@ -93,6 +93,7 @@ module.exports.addComment = async (req, res) => {
 };
 module.exports.addLike = async (req, res) => {
   const { blogId, userId } = req.params;
+  
   const user = await User.findOne({ userId: userId });
   const blog = await Blogs.findOne({ blogId: blogId });
   console.log(user._id);
