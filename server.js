@@ -6,11 +6,11 @@ const authorRoute = require("./routes/authorRoute");
 const adminRoute = require("./routes/adminRoute");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
- 
 
- 
 require("dotenv").config();
 app.use(cookieParser());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
@@ -28,10 +28,8 @@ mongoose
     console.log(err);
   });
 
-app.use(express.json());
-
 app.use("/author", authorRoute);
-app.use("/user", userRoute);
+app.use("/user", userRoute); 
 app.use("/admin", adminRoute);
 
 app.listen(3005, () => {
