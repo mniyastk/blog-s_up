@@ -1,24 +1,13 @@
 require("dotenv").config();
 
-const S3 = require("aws-sdk/clients/s3");
-const fs = require("fs");
-const bucketName = process.env.AWS_BUCKET_NAME;
-const accessKey = process.env.AWS_ACCESS_KEY;
-const secretKey = process.env.AWS_SECRET_KEY;
+const AWS = require("aws-sdk");
 
-const s3 = new S3({
-  bucketName,
-  accessKey,
-  secretKey,
+AWS.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY,
+  secretAccessKey: process.env.AWS_SECRET_KEY,
+  region: process.env.AWS_REGION,
 });
 
-function uploadFile(file) {
-  const fileStream = fs.createReadStream(file.path);
-  const uploadParams = {
-    Bucket: bucketName,
-    Body: fileStream,
-    Key: file.name,
-  };
-  return s3.upload(uploadParams).promise();
-}
-exports.uploadFile = uploadFile;
+const s3 = new AWS.S3();
+
+module.exports = s3;

@@ -7,20 +7,26 @@ const blogsShema = new mongoose.Schema({
   },
   title: {
     type: String,
-    
   },
   content: {
     type: String,
   },
   image: {
     type: String,
-  },  
+  },
   category: {
     type: String,
+  },
+  tags: {
+    type: [{ type: String }],   
   },
   author: {
     type: String,
     ref: "author",
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now(),
   },
   comments: [
     {

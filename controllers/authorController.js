@@ -2,8 +2,11 @@ const authorModel = require("../models/authorShema");
 const bcrypt = require("bcrypt");
 const blogModel = require("../models/blogShema");
 const { createToken } = require("../helpers/createToken");
-const { uploadFile } = require("../s3");
+const htmlToText = require("html-to-text");
 
+const s3 = require("../s3");
+
+///Regiser///
 const authorRegister = async (req, res) => {
   const data = req.body;
 
@@ -22,6 +25,7 @@ const authorRegister = async (req, res) => {
   }
 };
 
+///Login///
 const authorLogin = async (req, res) => {
   const { email, password } = req.body;
 
@@ -38,62 +42,49 @@ const authorLogin = async (req, res) => {
   }
 };
 
+///Account///
 const getAccount = async (req, res) => {
   const id = req.params.id;
   const user = await authorModel.findOne({ authorId: id });
   res.status(200).send(user);
 };
 
+///New Blog///
 const createBlog = async (req, res) => {
-   
+  const authorId = req.params.id;
+  const author = await authorModel.findOne({ authorId: authorId });
+  const authorObjectId = author._id;
   const { title, content, category, tags, image } = req.body;
+  const tagsArray = tags.split(",").map((tag, index) => tag.trim());
+  // const textContent = htmlToText.fromString(content, { wordwrap: false });
 
- res.send(req.body)
+  const params = {
+    Bucket: "blogs-up",
+    Key: image,
+    Body: image,
+  };
+  const data = await s3.upload(params).promise();
+  const imageUrl = data.Location;
 
-  // const uploaded = await uploadFile(image);
-  // console.log(uploaded);
-  // const uploadParams = {
-  //   Bucket: "blogsup",
-  //   Key: "https://console.cloudinary.com/console/c-37184aaaa09eb786e4aaa2a402ef45/media_library/homepage/asset/86bd625596c4f7796862e221fcb17629/manage?context=manage",
-  //   Body: "https://console.cloudinary.com/console/c-37184aaaa09eb786e4aaa2a402ef45/media_library/homepage/asset/86bd625596c4f7796862e221fcb17629/manage?context=manage",
+  const newBlog = new blogModel({
+    title: title,
+    content: content,
+    category: category,
+    tags: tagsArray,
+    author: authorId,
+    image: imageUrl,
+  });
+ 
+  await authorModel.findOneAndUpdate(
+    { authorId: authorId },
+    { $push: { blogsId: newBlog._id } }
+  );
 
-  // };
-
-  // s3.upload(uploadParams, (err, data) => {
-  //   if (err) {
-  //     console.error("Error uploading file:", err);
-  //   } else {
-  //     console.log("File uploaded successfully:", data.Location);
-  //   }
-  // });
-
-  // (async () => {
-  //   await s3
-  //     .putObject({
-  //       Body: "hello  world",
-  //       Bucket: "blogs-up",
-  //       Key: "sample.txt",
-  //     })
-  //     .promise();
-  // })();
-
-  // const newBlog = new blogModel({
-  //   title: title,
-  //   content: content,
-  //   category: category,
-  //   tags: tags,
-  //   author: authorId,
-  //   image: image,
-  // });
-
-  // await authorModel.findOneAndUpdate(
-  //   { authorId: authorId },
-  //   { $push: { blogsId: newBlog._id } }
-  // );
-
-  // const newBlogPost = await blogModel.create(newBlog);
-  // res.send(newBlogPost);
+  const newBlogPost = await blogModel.create(newBlog);
+  res.send(newBlogPost);
 };
+
+/// View posted Blogs///
 
 const postedBolgs = async (req, res) => {
   const id = req.params.id;
@@ -105,6 +96,8 @@ const postedBolgs = async (req, res) => {
     res.status(404).send("Blogs not found");
   }
 };
+
+///View Seperate Blog///
 const blogById = async (req, res) => {
   const id = req.params.id;
   const blog = await blogModel.findOne({ blogId: id });
@@ -114,6 +107,8 @@ const blogById = async (req, res) => {
     res.status(404).send("blog not found...!");
   }
 };
+
+///Delete Blog///
 const deleteBlog = async (req, res) => {
   const id = req.params.id;
   const removeblog = await blogModel.findOneAndDelete({ blogId: id });
@@ -123,6 +118,8 @@ const deleteBlog = async (req, res) => {
     res.status(400).send("something went wrong");
   }
 };
+
+/// view comments///
 const viewComments = async (req, res) => {
   const id = req.params.id;
   const blog = await blogModel.findOne({ blogId: id });
@@ -134,6 +131,7 @@ const viewComments = async (req, res) => {
   }
 };
 
+/// view likes///
 const viewLikes = async (req, res) => {
   const id = req.params.id;
   const blog = await blogModel.findOne({ blogId: id });
