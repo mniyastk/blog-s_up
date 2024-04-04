@@ -4,12 +4,13 @@ const userController = require("../controllers/userController");
 const { userAuth } = require("../middlewares/userAuth");
 
 router.post("/register", userController.register);
-router.post("/login", userController.login); 
-router.delete("/signout", userController.logout); 
+router.post("/login", userController.login);
+router.delete("/signout", userController.logout);
 router.get("/blogs", userController.getBlogs);
 router.get("/blog/:id", userController.getBlogById);
 router.get("/blogs/:category", userController.getBlogsByCategory);
 router.post("/comment/:blogId/:userId", userController.addComment);
+router.put("/comment/:blogId/:userId", userController.editComment);
 router.post("/like/:blogId/:userId", userController.addLike);
 router.get("/blog/history", userController.getWatchingHistory);
 router.get("/auther/:id", userController.getAuther);
