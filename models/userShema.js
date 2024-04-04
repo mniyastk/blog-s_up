@@ -18,6 +18,8 @@ const userSchema = new mongoose.Schema({
     default: Date.now(),
     required: true,
   },
+  savedList: [{ type: mongoose.Schema.Types.ObjectId, ref: "posts" }],
+  following: Array,
 });
 
 userSchema.pre("save", async function (next) {

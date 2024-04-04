@@ -3,6 +3,7 @@ const User = require("../models/userShema");
 const Blogs = require("../models/blogShema");
 const Author = require("../models/authorShema");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 module.exports.register = async (req, res) => {
   const { username, email, password, confirmPassword } = req.body;
@@ -94,21 +95,29 @@ module.exports.addComment = async (req, res) => {
 };
 
 module.exports.editComment = async (req, res) => {
-  const { blogId, userId } = req.params;
-  const { comment } = req.body;
-  const user = await User.findOne({ _id: userId });
-  await Blogs.findOneAndUpdate(
-    { _id: blogId },
-    {
-      $push: {
-        comments: {
-          content: content,
-          created: Date.now(),
-          postedby: user._id,
-        },
-      },
+  const { blogId, userId, commentId } = req.params;
+  const { editedComment } = req.body;
+  const blog = await Blogs.findById(blogId);
+  const uComments = blog?.comments?.map((item) => {
+    if (item._id == commentId) {
+      item.content = editedComment;
     }
-  );
+    return item;
+  });
+
+  blog.comments = uComments;
+  await blog.save();
+  res.status(200).send("success");
+};
+module.exports.removeComment = async (req, res) => {
+  const { blogId, commentId } = req.params;
+
+  const blog = await Blogs.findById(blogId);
+  const uComments = blog?.comments?.filter((item) => item._id != commentId);
+
+  blog.comments = uComments
+
+  res.status(200).send("success");
 };
 
 module.exports.addLike = async (req, res) => {
@@ -145,6 +154,36 @@ module.exports.addLike = async (req, res) => {
     );
     res.send("liked");
   }
+};
+
+module.exports.saveBlog = async (req, res) => {
+  const { blogId, userId } = req.params;
+  const user = await User.findById(userId);
+  const isExist = user.savedList.find((item) => item._id == blogId);
+  if (!isExist) {
+    const updatedUser = await User.findByIdAndUpdate(userId, {
+      $push: { savedList: blogId },
+    });
+    res.status(200).send("success");
+    console.log(updatedUser);
+  }
+};
+module.exports.getUser = async (req, res) => {
+  const token = req.cookies.userToken;
+  if (token) {
+    const decoded = jwt.decode(token);
+    const user = await User.findOne({ email: decoded.user }).populate(
+      "savedList"
+    );
+    res.status(200).send(user);
+  } else {
+    res.status(404).send("token not found");
+  }
+};
+module.exports.getSavedList = async (req, res) => {
+  const { userId } = req.params;
+  const user = await User.findById(userId).populate("savedList");
+  res.status(200).send(user.savedList);
 };
 
 module.exports.getBlogsByCategory = async (req, res) => {

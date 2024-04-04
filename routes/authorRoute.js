@@ -12,5 +12,6 @@ router.get("/blogbyid/:id", authorAuth, authorController.blogById);
 router.delete("/removeblog/:id", authorAuth, authorController.deleteBlog);
 router.get("/likes/:id", authorAuth, authorController.viewLikes);
 router.get("/comments/:id", authorAuth, authorController.viewComments);
+router.post("/comment/:blogId/:authorId", authorController.adddComment);
+
 module.exports = router;
- 

@@ -102,6 +102,26 @@ const viewComments = async (req, res) => {
   }
 };
 
+const adddComment = async (req, res) => {
+  // const { blogId, authorId } = req.params;
+  // const content = req.body.comment;
+  // const author = await authorModel.findOne({ _id: authorId });
+  console.log("content");
+  // const comment = await blogModel.findOneAndUpdate(
+  //   { _id: blogId },
+  //   {
+  //     $push: {
+  //       comments: {
+  //         content: content,
+  //         created: Date.now(),
+  //         postedby: author._id,
+  //       },
+  //     },
+  //   }
+  // );
+  // res.status(200).send("Comment posted");
+};
+
 const viewLikes = async (req, res) => {
   const id = req.params.id;
   const blog = await blogModel.findOne({ blogId: id });
@@ -122,4 +142,5 @@ module.exports = {
   deleteBlog,
   viewLikes,
   viewComments,
+  adddComment,
 };
