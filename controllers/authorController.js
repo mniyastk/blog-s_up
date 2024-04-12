@@ -53,11 +53,8 @@ const getAccount = async (req, res) => {
 const createBlog = async (req, res) => {
   const authorId = req.params.id;
   const author = await authorModel.findOne({ authorId: authorId });
-  const authorObjectId = author._id;
   const { title, content, category, tags, image } = req.body;
   const tagsArray = tags.split(",").map((tag, index) => tag.trim());
-  // const textContent = htmlToText.fromString(content, { wordwrap: false });
-
   const params = {
     Bucket: "blogs-up",
     Key: image,
@@ -74,7 +71,7 @@ const createBlog = async (req, res) => {
     author: authorId,
     image: imageUrl,
   });
- 
+
   await authorModel.findOneAndUpdate(
     { authorId: authorId },
     { $push: { blogsId: newBlog._id } }
@@ -108,14 +105,54 @@ const blogById = async (req, res) => {
   }
 };
 
+///// Update Blog //////
+
+const updateBlog = async (req, res) => {
+  const id = req.params.id;
+  const blog = await blogModel.findById(id);
+  const { title, content, category, tags, image } = req.body;
+  const tagsArray = tags.split(",").map((tag, index) => tag.trim());
+  const params = {
+    Bucket: "blogs-up",
+    Key: image,
+    Body: image,
+  };
+  const data = await s3.upload(params).promise();
+  const imageUrl = data.Location;
+  const updatedBlog = await blogModel.findByIdAndUpdate(id, {
+    $set: {
+      title: title,
+      content: content,
+      category: category,
+      tags: tagsArray,
+      image: imageUrl,
+    },
+  });
+
+  if (updatedBlog) {
+    res.send("Successfully updated");
+  } else {
+    res.send("something went wrong");
+  }
+};
+
 ///Delete Blog///
 const deleteBlog = async (req, res) => {
   const id = req.params.id;
-  const removeblog = await blogModel.findOneAndDelete({ blogId: id });
-  if (removeblog) {
-    res.status(200).send("post deleted");
+  const authorId = req.params.authorid;
+  const author = await authorModel.findById(authorId);
+
+  const updatedBlog = author.blogsId.filter((item) => item._id != id);
+  const removeblog = await blogModel.findOneAndDelete({ _id: id });
+  const authorBlogs = await authorModel.findOneAndUpdate(author._id, {
+    $set: {
+      blogsId: updatedBlog,
+    },
+  });
+  if (removeblog && authorBlogs) {
+    res.send("success");
   } else {
-    res.status(400).send("something went wrong");
+    res.send("something went wrong");
   }
 };
 
@@ -142,14 +179,36 @@ const viewLikes = async (req, res) => {
     res.status(404).send("Likes not found");
   }
 };
+
+//// Update Account /////
+const updateAccount = async (req, res) => {
+  const id = req.params.id;
+  const author = await authorModel.findById(id);
+
+  const { username, phone, image } = req.body;
+  const updatedAuthor = await authorModel.findOneAndUpdate(author._id, {
+    $set: {
+      username: username,
+      phone: phone,
+    },
+  });
+  
+  if (updatedAuthor) {
+    res.send("Successfully Updated");
+  } else {
+    res.send("Something went Wrong...");
+  }
+};
 module.exports = {
   authorRegister,
   authorLogin,
   getAccount,
   createBlog,
   postedBolgs,
+  updateBlog,
   blogById,
   deleteBlog,
   viewLikes,
   viewComments,
+  updateAccount,
 };
