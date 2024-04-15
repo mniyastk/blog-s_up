@@ -13,14 +13,15 @@ router.get("/getaccount/:id", authorController.getAccount);
 router.get("/getauthor", authorController.getAuthor);
 router.post(
   "/createblog/:id",
-  upload.single("image"), 
+  upload.single("image"),
   authorController.createBlog
 );
-router.get("/allblogs/:id", authorController.postedBolgs);
-router.get("/blogbyid/:id", authorAuth, authorController.blogById);
-router.delete("/removeblog/:id", authorAuth, authorController.deleteBlog);
-router.get("/likes/:id", authorAuth, authorController.viewLikes);
-router.get("/comments/:id", authorAuth, authorController.viewComments);
-// router.post("/comment/:blogId/:authorId", authorController.adddComment);
 
+router.get("/allblogs/:id", authorController.postedBolgs);
+router.get("/blogbyid/:id", authorController.blogById);
+router.delete("/delete/:id/:authorid", authorController.deleteBlog);
+router.put("/update/:id", authorController.updateBlog);
+router.put("/updateaccount/:id", authorController.updateAccount);
+router.get("/likes/:id", authorController.viewLikes);
+router.get("/comments/:id", authorController.viewComments);
 module.exports = router;
