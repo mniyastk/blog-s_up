@@ -4,6 +4,7 @@ const Blogs = require("../models/blogShema");
 const Author = require("../models/authorShema");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { tryCatch } = require("../utils/tryCatch");
 
 module.exports.register = async (req, res) => {
   const { username, email, password, confirmPassword } = req.body;
@@ -64,7 +65,7 @@ module.exports.getBlogs = async (req, res) => {
   const blogs = await Blogs.find();
   res.send(blogs);
 };
-module.exports.getBlogById = async (req, res) => {
+module.exports.getBlogById = tryCatch(async (req, res) => {
   const blogId = req.params.id;
   const blog = await Blogs.findOne({ _id: blogId }).populate(
     "comments.postedby"
@@ -74,7 +75,8 @@ module.exports.getBlogById = async (req, res) => {
   } else {
     res.status(404).send("blog not found");
   }
-};
+});
+
 module.exports.addComment = async (req, res) => {
   const { blogId, userId } = req.params;
   const content = req.body.comment;
@@ -115,7 +117,8 @@ module.exports.removeComment = async (req, res) => {
   const blog = await Blogs.findById(blogId);
   const uComments = blog?.comments?.filter((item) => item._id != commentId);
 
-  blog.comments = uComments
+  blog.comments = uComments;
+  await blog.save();
 
   res.status(200).send("success");
 };
@@ -165,7 +168,19 @@ module.exports.saveBlog = async (req, res) => {
       $push: { savedList: blogId },
     });
     res.status(200).send("success");
-    console.log(updatedUser);
+  }
+};
+module.exports.unSaveBlog = async (req, res) => {
+  const { blogId, userId } = req.params;
+  const user = await User.findById(userId);
+  const isExist = user.savedList.find((item) => item._id == blogId);
+
+  if (isExist) {
+    const uSavedList = user.savedList.filter((item) => item._id != blogId);
+    const updatedUser = await User.findByIdAndUpdate(userId, {
+      $set: { savedList: uSavedList },
+    });
+    res.status(200).send("success");
   }
 };
 module.exports.getUser = async (req, res) => {
