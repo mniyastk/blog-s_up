@@ -22,6 +22,9 @@ router.delete(
 router.post("/like/:blogId/:userId", userController.addLike);
 // router.get("/blog/history", userController.getWatchingHistory);
 router.post("/blog/save/:blogId/:userId", userController.saveBlog);
+router.post("/follow/:authorId/:userId", userController.follow);
+router.delete("/unfollow/:authorId/:userId", userController.unFollow);
+router.get("/getfollowing/:userId", userController.getFollowing);
 router.delete("/blog/unsave/:blogId/:userId", userController.unSaveBlog);
 router.get("/savedlist/:userId", userController.getSavedList);
 router.get("/auther/:id", userController.getAuther);

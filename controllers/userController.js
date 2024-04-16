@@ -170,6 +170,35 @@ module.exports.saveBlog = async (req, res) => {
     res.status(200).send("success");
   }
 };
+
+////////////////////Following/////////////////////////
+
+module.exports.follow = async (req, res) => {
+  const { authorId, userId } = req.params;
+  const author = await Author.findOne({ authorId: authorId });
+
+  await User.findByIdAndUpdate(userId, {
+    $push: {
+      following: author._id,
+    },
+  });
+  res.status(200).send("Followed");
+};
+module.exports.unFollow = async (req, res) => {
+  const { authorId, userId } = req.params;
+  const user = await User.findById(userId);
+  const uFollingList = user.following.filter((item) => item._id != authorId);
+  user.following = uFollingList;
+  await user.save();
+  res.status(200).send("unfollowed");
+};
+
+module.exports.getFollowing = async (req, res) => {
+  const { userId } = req.params;
+  const user = await User.findById(userId).populate("following");
+  res.status(200).send(user.following);
+};
+
 module.exports.unSaveBlog = async (req, res) => {
   const { blogId, userId } = req.params;
   const user = await User.findById(userId);
