@@ -10,6 +10,7 @@ const upload = multer({ storage: storage });
 router.post("/register", authorController.authorRegister);
 router.post("/login", authorController.authorLogin);
 router.get("/getaccount/:id", authorController.getAccount);
+router.get("/getauthor", authorController.getAuthor);
 router.post(
   "/createblog/:id",
   upload.single("image"),

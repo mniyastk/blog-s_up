@@ -3,6 +3,8 @@ const User = require("../models/userShema");
 const Blogs = require("../models/blogShema");
 const Author = require("../models/authorShema");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const { tryCatch } = require("../utils/tryCatch");
 
 module.exports.register = async (req, res) => {
   const { username, email, password, confirmPassword } = req.body;
@@ -63,7 +65,7 @@ module.exports.getBlogs = async (req, res) => {
   const blogs = await Blogs.find();
   res.send(blogs);
 };
-module.exports.getBlogById = async (req, res) => {
+module.exports.getBlogById = tryCatch(async (req, res) => {
   const blogId = req.params.id;
   const blog = await Blogs.findOne({ _id: blogId }).populate(
     "comments.postedby"
@@ -73,7 +75,8 @@ module.exports.getBlogById = async (req, res) => {
   } else {
     res.status(404).send("blog not found");
   }
-};
+});
+
 module.exports.addComment = async (req, res) => {
   const { blogId, userId } = req.params;
   const content = req.body.comment;
@@ -94,21 +97,30 @@ module.exports.addComment = async (req, res) => {
 };
 
 module.exports.editComment = async (req, res) => {
-  const { blogId, userId } = req.params;
-  const { comment } = req.body;
-  const user = await User.findOne({ _id: userId });
-  await Blogs.findOneAndUpdate(
-    { _id: blogId },
-    {
-      $push: {
-        comments: {
-          content: content,
-          created: Date.now(),
-          postedby: user._id,
-        },
-      },
+  const { blogId, userId, commentId } = req.params;
+  const { editedComment } = req.body;
+  const blog = await Blogs.findById(blogId);
+  const uComments = blog?.comments?.map((item) => {
+    if (item._id == commentId) {
+      item.content = editedComment;
     }
-  );
+    return item;
+  });
+
+  blog.comments = uComments;
+  await blog.save();
+  res.status(200).send("success");
+};
+module.exports.removeComment = async (req, res) => {
+  const { blogId, commentId } = req.params;
+
+  const blog = await Blogs.findById(blogId);
+  const uComments = blog?.comments?.filter((item) => item._id != commentId);
+
+  blog.comments = uComments;
+  await blog.save();
+
+  res.status(200).send("success");
 };
 
 module.exports.addLike = async (req, res) => {
@@ -145,6 +157,77 @@ module.exports.addLike = async (req, res) => {
     );
     res.send("liked");
   }
+};
+
+module.exports.saveBlog = async (req, res) => {
+  const { blogId, userId } = req.params;
+  const user = await User.findById(userId);
+  const isExist = user.savedList.find((item) => item._id == blogId);
+  if (!isExist) {
+    const updatedUser = await User.findByIdAndUpdate(userId, {
+      $push: { savedList: blogId },
+    });
+    res.status(200).send("success");
+  }
+};
+
+////////////////////Following/////////////////////////
+
+module.exports.follow = async (req, res) => {
+  const { authorId, userId } = req.params;
+  const author = await Author.findOne({ authorId: authorId });
+
+  await User.findByIdAndUpdate(userId, {
+    $push: {
+      following: author._id,
+    },
+  });
+  res.status(200).send("Followed");
+};
+module.exports.unFollow = async (req, res) => {
+  const { authorId, userId } = req.params;
+  const user = await User.findById(userId);
+  const uFollingList = user.following.filter((item) => item._id != authorId);
+  user.following = uFollingList;
+  await user.save();
+  res.status(200).send("unfollowed");
+};
+
+module.exports.getFollowing = async (req, res) => {
+  const { userId } = req.params;
+  const user = await User.findById(userId).populate("following");
+  res.status(200).send(user.following);
+};
+
+module.exports.unSaveBlog = async (req, res) => {
+  const { blogId, userId } = req.params;
+  const user = await User.findById(userId);
+  const isExist = user.savedList.find((item) => item._id == blogId);
+
+  if (isExist) {
+    const uSavedList = user.savedList.filter((item) => item._id != blogId);
+    const updatedUser = await User.findByIdAndUpdate(userId, {
+      $set: { savedList: uSavedList },
+    });
+    res.status(200).send("success");
+  }
+};
+module.exports.getUser = async (req, res) => {
+  const token = req.cookies.userToken;
+  if (token) {
+    const decoded = jwt.decode(token);
+    const user = await User.findOne({ email: decoded.user }).populate(
+      "savedList"
+    );
+    res.status(200).send(user);
+  } else {
+    res.status(404).send("token not found");
+  }
+};
+module.exports.getSavedList = async (req, res) => {
+  const { userId } = req.params;
+  const user = await User.findById(userId).populate("savedList");
+  res.status(200).send(user.savedList);
 };
 
 module.exports.getBlogsByCategory = async (req, res) => {

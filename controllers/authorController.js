@@ -2,7 +2,8 @@ const authorModel = require("../models/authorShema");
 const bcrypt = require("bcrypt");
 const blogModel = require("../models/blogShema");
 const { createToken } = require("../helpers/createToken");
-const htmlToText = require("html-to-text");
+// const htmlToText = require("html-to-text");
+const jwt = require('jsonwebtoken')
 
 const s3 = require("../s3");
 
@@ -47,6 +48,16 @@ const getAccount = async (req, res) => {
   const id = req.params.id;
   const user = await authorModel.findOne({ authorId: id });
   res.status(200).send(user);
+};
+const getAuthor = async (req, res) => {
+  const token = req.cookies.authorToken;
+  if (token) {
+    const decoded = jwt.decode(token);
+    const author = await authorModel.findOne({ email: decoded.user });
+    res.status(200).send(author);
+  } else {
+    res.status(404).send("token not found");
+  }
 };
 
 ///New Blog///
@@ -203,6 +214,7 @@ module.exports = {
   authorRegister,
   authorLogin,
   getAccount,
+  getAuthor,
   createBlog,
   postedBolgs,
   updateBlog,
@@ -210,5 +222,6 @@ module.exports = {
   deleteBlog,
   viewLikes,
   viewComments,
+  // adddComment,
   updateAccount,
 };
