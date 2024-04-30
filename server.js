@@ -32,9 +32,9 @@ try {
   console.log(error.message);
 }
 
-app.use("/author", authorRoute);
-app.use("/user", userRoute); 
-app.use("/admin", adminRoute);
+app.use("/api/author", authorRoute);
+app.use("/api/user", userRoute); 
+app.use("/api/admin", adminRoute);
 
 app.listen(3005, () => {
   console.log("server running ");
