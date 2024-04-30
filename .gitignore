@@ -25,5 +25,4 @@ yarn-error.log
 *.sublime-workspace
 
 # Package-lock files
-package-lock.json
 yarn.lock
