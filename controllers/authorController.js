@@ -36,7 +36,7 @@ const authorLogin = async (req, res) => {
     if (auth) {
       const authorToken = createToken(email);
       res.cookie("authorToken", authorToken, { httpOnly: true });
-      res.status(200).send("Login Successfully...");
+      res.status(200).send("Login Successfully....");
     } else {
       res.status(404).send("Incorrect Username or Password");
     }
