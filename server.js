@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: "https://blogsup.vercel.app",
+    origin: "https://blogsup.shop",
     credentials: true,
   })
 );
