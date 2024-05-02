@@ -7,7 +7,7 @@ const adminLogin = async (req, res) => {
   if (username === "admin" && password === "123") {
     const token = createToken(username);
     res.cookie("adminToken", token, { httpOnly: true });
-    res.status(200).send("Login Success");
+    res.status(200).send("Login is Successfull");
   } else {
     res.status(404).send("Incorrect Username or Password");
   }
