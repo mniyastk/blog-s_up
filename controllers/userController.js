@@ -11,7 +11,7 @@ module.exports.register = async (req, res) => {
   const userExist = await User.findOne({ email: email });
   if (!userExist) {
     await User.create(req.body);
-    res.status(200).send("Register success");
+    res.status(200).send("Register successfull");
   } else {
     res.status(409).send("User already exist");
   }
@@ -56,7 +56,6 @@ module.exports.login = async (req, res) => {
 };
 
 module.exports.logout = async (req, res) => {
-  // const cookie = res.cookie.userToken
   res.cookie("userToken", "", { maxAge: 1 });
   res.send("success");
 };

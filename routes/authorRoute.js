@@ -12,7 +12,7 @@ router.post("/login", authorController.authorLogin);
 router.get("/getaccount/:id", authorController.getAccount);
 router.get("/getauthor", authorController.getAuthor);
 router.post(
-  "/createblog/:id",
+  "/createblog/:id", 
   upload.single("image"),
   authorController.createBlog
 );
@@ -24,4 +24,5 @@ router.put("/update/:id", authorController.updateBlog);
 router.put("/updateaccount/:id", authorController.updateAccount);
 router.get("/likes/:id", authorController.viewLikes);
 router.get("/comments/:id", authorController.viewComments);
+router.get("/stats/:id", authorController.accountStats);
 module.exports = router;

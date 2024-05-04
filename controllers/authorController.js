@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const blogModel = require("../models/blogShema");
 const { createToken } = require("../helpers/createToken");
 // const htmlToText = require("html-to-text");
-const jwt = require('jsonwebtoken')
+const jwt = require("jsonwebtoken");
 
 const s3 = require("../s3");
 
@@ -36,7 +36,7 @@ const authorLogin = async (req, res) => {
     if (auth) {
       const authorToken = createToken(email);
       res.cookie("authorToken", authorToken, { httpOnly: true });
-      res.status(200).send("Login Successfully...");
+      res.status(200).send("Login Successfully....");
     } else {
       res.status(404).send("Incorrect Username or Password");
     }
@@ -122,21 +122,30 @@ const updateBlog = async (req, res) => {
   const id = req.params.id;
   const blog = await blogModel.findById(id);
   const { title, content, category, tags, image } = req.body;
-  const tagsArray = tags.split(",").map((tag, index) => tag.trim());
+  const oldTag = blog.tags;
+  // const tagsArray = tags.split(",").map((tag, index) => tag.trim());
+
   const params = {
     Bucket: "blogs-up",
     Key: image,
     Body: image,
   };
-  const data = await s3.upload(params).promise();
-  const imageUrl = data.Location;
+  const oldImage = blog.image;
+  let imageurl = "";
+  if (oldImage === image) {
+    imageurl = image;
+  } else {
+    const data = await s3.upload(params).promise();
+    imageurl = data.Location;
+  }
+
   const updatedBlog = await blogModel.findByIdAndUpdate(id, {
     $set: {
       title: title,
       content: content,
       category: category,
-      tags: tagsArray,
-      image: imageUrl,
+      tags: tags,
+      image: imageurl,
     },
   });
 
@@ -203,12 +212,18 @@ const updateAccount = async (req, res) => {
       phone: phone,
     },
   });
-  
+
   if (updatedAuthor) {
     res.send("Successfully Updated");
   } else {
     res.send("Something went Wrong...");
   }
+};
+
+const accountStats = async (req, res) => {
+  const authorId = req.params.id;
+  const author = await authorModel.findById(authorId);
+  console.log(author);
 };
 module.exports = {
   authorRegister,
@@ -224,4 +239,5 @@ module.exports = {
   viewComments,
   // adddComment,
   updateAccount,
+  accountStats
 };
