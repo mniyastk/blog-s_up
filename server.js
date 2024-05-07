@@ -14,11 +14,17 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: "https://blogsup.shop",
+    origin: "https://blogsup.vercel.app/",
     credentials: true,
   })
 );
 
+// app.use(
+//   cors({
+//     origin: "http://localhost:3000",
+//     credentials: true,
+//   })
+// );
 try {
   mongoose
   .connect(
@@ -32,9 +38,9 @@ try {
   console.log(error.message);
 }
 
-app.use("/api/author", authorRoute);
-app.use("/api/user", userRoute); 
-app.use("/api/admin", adminRoute);
+app.use("/author", authorRoute);
+app.use("/user", userRoute); 
+app.use("/admin", adminRoute);
 
 app.listen(3005, () => {
   console.log("server running ");
