@@ -14,26 +14,27 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: "https://blogsup.vercel.app",
+    // origin: "https://blogsup.vercel.app",
+    origin: "http://localhost:3000",
     credentials: true,
   })
 );
 
 try {
   mongoose
-  .connect(
-    "mongodb+srv://blogsup:09779346@cluster0.9iogxhx.mongodb.net/blog'sUp"
-  )
-  .then(() => console.log("db connected"))
-  .catch((err) => {
-    console.log(err.message);
-  });
+    .connect(
+      "mongodb+srv://blogsup:09779346@cluster0.9iogxhx.mongodb.net/blog'sUp"
+    )
+    .then(() => console.log("db connected"))
+    .catch((err) => {
+      console.log(err.message);
+    });
 } catch (error) {
   console.log(error.message);
 }
 
 app.use("/api/author", authorRoute);
-app.use("/api/user", userRoute); 
+app.use("/api/user", userRoute);
 app.use("/api/admin", adminRoute);
 
 app.listen(3005, () => {

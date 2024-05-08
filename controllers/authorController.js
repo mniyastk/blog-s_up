@@ -79,7 +79,7 @@ const createBlog = async (req, res) => {
     content: content,
     category: category,
     tags: tagsArray,
-    author: authorId,
+    author: author._id,
     image: imageUrl,
   });
 

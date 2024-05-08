@@ -18,10 +18,10 @@ const blogsShema = new mongoose.Schema({
     type: String,
   },
   tags: {
-    type: [{ type: String }],   
+    type: [{ type: String }],
   },
   author: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "author",
   },
   createdAt: {

@@ -61,14 +61,14 @@ module.exports.logout = async (req, res) => {
 };
 
 module.exports.getBlogs = async (req, res) => {
-  const blogs = await Blogs.find();
+  const blogs = await Blogs.find().populate("author");
   res.send(blogs);
 };
 module.exports.getBlogById = tryCatch(async (req, res) => {
   const blogId = req.params.id;
   const blog = await Blogs.findOne({ _id: blogId }).populate(
     "comments.postedby"
-  );
+  ).populate("author")
   if (blog) {
     res.status(200).send(blog);
   } else {
@@ -174,11 +174,10 @@ module.exports.saveBlog = async (req, res) => {
 
 module.exports.follow = async (req, res) => {
   const { authorId, userId } = req.params;
-  const author = await Author.findOne({ authorId: authorId });
 
   await User.findByIdAndUpdate(userId, {
     $push: {
-      following: author._id,
+      following: authorId,
     },
   });
   res.status(200).send("Followed");
@@ -231,7 +230,7 @@ module.exports.getSavedList = async (req, res) => {
 
 module.exports.getBlogsByCategory = async (req, res) => {
   const category = req.params.category;
-  const blogs = await Blogs.find({ category: category });
+  const blogs = await Blogs.find({ category: category }).populate("author");
   if (blogs) {
     res.status(200).send(blogs);
   } else {
