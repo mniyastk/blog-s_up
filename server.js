@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: "ghttps://blogsup.shop//",
+    origin: "https://blogsup.shop",
     credentials: true,
   })
 );
