@@ -66,9 +66,9 @@ module.exports.getBlogs = async (req, res) => {
 };
 module.exports.getBlogById = tryCatch(async (req, res) => {
   const blogId = req.params.id;
-  const blog = await Blogs.findOne({ _id: blogId }).populate(
-    "comments.postedby"
-  ).populate("author")
+  const blog = await Blogs.findOne({ _id: blogId })
+    .populate("comments.postedby")
+    .populate("author");
   if (blog) {
     res.status(200).send(blog);
   } else {
