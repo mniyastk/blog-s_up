@@ -21,9 +21,7 @@ app.use(
 
 try {
   mongoose
-    .connect(
-      "mongodb+srv://blogsup:09779346@cluster0.9iogxhx.mongodb.net/blog'sUp"
-    )
+    .connect(process.env.MONGO_CONNECTION_STRING)
     .then(() => console.log("db connected"))
     .catch((err) => {
       console.log(err.message);
@@ -36,6 +34,6 @@ app.use("/author", authorRoute);
 app.use("/user", userRoute);
 app.use("/admin", adminRoute);
 
-app.listen(3005, () => {
+app.listen(process.env.PORT, () => {
   console.log("server running ");
 });
