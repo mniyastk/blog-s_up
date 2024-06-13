@@ -22,7 +22,7 @@ const blogsShema = new mongoose.Schema({
   },
   author: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "author",
+    ref: "user",
   },
   createdAt: {
     type: Date,

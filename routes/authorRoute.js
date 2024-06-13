@@ -17,10 +17,9 @@ router.post(
   authorController.createBlog
 );
 
-router.get("/allblogs/:id", authorController.postedBolgs);
 router.get("/blogbyid/:id", authorController.blogById);
 router.delete("/delete/:id/:authorid", authorController.deleteBlog);
-router.put("/update/:id", authorController.updateBlog);
+// router.put("/update/:id", authorController.updateBlog);
 router.put("/updateaccount/:id", authorController.updateAccount);
 router.get("/likes/:id", authorController.viewLikes);
 router.get("/comments/:id", authorController.viewComments);

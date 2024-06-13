@@ -1,6 +1,8 @@
 const authorModel = require("../models/authorShema");
 const bcrypt = require("bcrypt");
 const blogModel = require("../models/blogShema");
+const userModel = require("../models/userShema");
+
 const { createToken } = require("../helpers/createToken");
 // const htmlToText = require("html-to-text");
 const jwt = require("jsonwebtoken");
@@ -9,235 +11,223 @@ const s3 = require("../s3");
 
 ///Regiser///
 const authorRegister = async (req, res) => {
-  const data = req.body;
+    const data = req.body;
 
-  const user = new authorModel({
-    username: data.username,
-    email: data.email,
-    password: data.password,
-  });
+    const user = new authorModel({
+        username: data.username,
+        email: data.email,
+        password: data.password,
+    });
 
-  const isexist = await authorModel.findOne({ email: user.email });
-  if (isexist) {
-    res.status(409).send(`${user.email} already exist`);
-  } else {
-    const newUser = await authorModel.create(user);
-    res.status(201).send(newUser);
-  }
+    const isexist = await authorModel.findOne({ email: user.email });
+    if (isexist) {
+        res.status(409).send(`${user.email} already exist`);
+    } else {
+        const newUser = await authorModel.create(user);
+        res.status(201).send(newUser);
+    }
 };
 
 ///Login///
 const authorLogin = async (req, res) => {
-  const { email, password } = req.body;
+    const { email, password } = req.body;
 
-  const user = await authorModel.findOne({ email: email });
-  if (user) {
-    const auth = await bcrypt.compare(password, user.password);
-    if (auth) {
-      const authorToken = createToken(email);
-      res.cookie("authorToken", authorToken, { httpOnly: true });
-      res.status(200).send("Login Successfully....");
-    } else {
-      res.status(404).send("Incorrect Username or Password");
+    const user = await authorModel.findOne({ email: email });
+    if (user) {
+        const auth = await bcrypt.compare(password, user.password);
+        if (auth) {
+            const authorToken = createToken(email);
+            res.cookie("authorToken", authorToken, { httpOnly: true });
+            res.status(200).send("Login Successfully....");
+        } else {
+            res.status(404).send("Incorrect Username or Password");
+        }
     }
-  }
 };
 
 ///Account///
 const getAccount = async (req, res) => {
-  const id = req.params.id;
-  const user = await authorModel.findOne({ authorId: id });
-  res.status(200).send(user);
+    const id = req.params.id;
+    const user = await authorModel.findOne({ authorId: id });
+    res.status(200).send(user);
 };
 const getAuthor = async (req, res) => {
-  const token = req.cookies.authorToken;
-  if (token) {
-    const decoded = jwt.decode(token);
-    const author = await authorModel.findOne({ email: decoded.user });
-    res.status(200).send(author);
-  } else {
-    res.status(404).send("token not found");
-  }
+    const token = req.cookies.authorToken;
+    if (token) {
+        const decoded = jwt.decode(token);
+        const author = await authorModel.findOne({ email: decoded.user });
+        res.status(200).send(author);
+    } else {
+        res.status(404).send("token not found");
+    }
 };
 
 ///New Blog///
 const createBlog = async (req, res) => {
-  const authorId = req.params.id;
-  const author = await authorModel.findOne({ authorId: authorId });
-  const { title, content, category, tags, image } = req.body;
-  const tagsArray = tags.split(",").map((tag, index) => tag.trim());
-  const params = {
-    Bucket: "blogs-up",
-    Key: image,
-    Body: image,
-  };
-  const data = await s3.upload(params).promise();
-  const imageUrl = data.Location;
+    const userId = req.params.id;
+    console.log(userId);
+    // const user = await userModel.findOne({ userId: userId });
+    // const { title, content, category, tags, image } = req.body;
+    // const tagsArray = tags.split(",").map((tag, index) => tag.trim());
+    // const params = {
+    //     Bucket: "blogs-up",
+    //     Key: image,
+    //     Body: image,
+    // };
+    // const data = await s3.upload(params).promise();
+    // const imageUrl = data.Location;
 
-  const newBlog = new blogModel({
-    title: title,
-    content: content,
-    category: category,
-    tags: tagsArray,
-    author: author._id,
-    image: imageUrl,
-  });
+    // const newBlog = new blogModel({
+    //     title: title,
+    //     content: content,
+    //     category: category,
+    //     tags: tagsArray,
+    //     author: author._id,
+    //     image: imageUrl,
+    // });
 
-  await authorModel.findOneAndUpdate(
-    { authorId: authorId },
-    { $push: { blogsId: newBlog._id } }
-  );
+    // await authorModel.findOneAndUpdate({ authorId: authorId }, { $push: { blogsId: newBlog._id } });
 
-  const newBlogPost = await blogModel.create(newBlog);
-  res.send(newBlogPost);
+    // const newBlogPost = await blogModel.create(newBlog);
+    // res.send(newBlogPost);
 };
 
 /// View posted Blogs///
 
-const postedBolgs = async (req, res) => {
-  const id = req.params.id;
-  const blogs = await blogModel.find({ author: id });
 
-  if (blogs) {
-    res.status(200).send(blogs);
-  } else {
-    res.status(404).send("Blogs not found");
-  }
-};
 
 ///View Seperate Blog///
 const blogById = async (req, res) => {
-  const id = req.params.id;
-  const blog = await blogModel.findOne({ blogId: id });
-  if (blog) {
-    res.status(200).send(blog);
-  } else {
-    res.status(404).send("blog not found...!");
-  }
+    const id = req.params.id;
+    const blog = await blogModel.findOne({ blogId: id });
+    if (blog) {
+        res.status(200).send(blog);
+    } else {
+        res.status(404).send("blog not found...!");
+    }
 };
 
 ///// Update Blog //////
 
 const updateBlog = async (req, res) => {
-  const id = req.params.id;
-  const blog = await blogModel.findById(id);
-  const { title, content, category, tags, image } = req.body;
-  const oldTag = blog.tags;
-  // const tagsArray = tags.split(",").map((tag, index) => tag.trim());
+    const id = req.params.id;
+    const blog = await blogModel.findById(id);
+    const { title, content, category, tags, image } = req.body;
+    const oldTag = blog.tags;
+    // const tagsArray = tags.split(",").map((tag, index) => tag.trim());
 
-  const params = {
-    Bucket: "blogs-up",
-    Key: image,
-    Body: image,
-  };
-  const oldImage = blog.image;
-  let imageurl = "";
-  if (oldImage === image) {
-    imageurl = image;
-  } else {
-    const data = await s3.upload(params).promise();
-    imageurl = data.Location;
-  }
+    const params = {
+        Bucket: "blogs-up",
+        Key: image,
+        Body: image,
+    };
+    const oldImage = blog.image;
+    let imageurl = "";
+    if (oldImage === image) {
+        imageurl = image;
+    } else {
+        const data = await s3.upload(params).promise();
+        imageurl = data.Location;
+    }
 
-  const updatedBlog = await blogModel.findByIdAndUpdate(id, {
-    $set: {
-      title: title,
-      content: content,
-      category: category,
-      tags: tags,
-      image: imageurl,
-    },
-  });
+    const updatedBlog = await blogModel.findByIdAndUpdate(id, {
+        $set: {
+            title: title,
+            content: content,
+            category: category,
+            tags: tags,
+            image: imageurl,
+        },
+    });
 
-  if (updatedBlog) {
-    res.send("Successfully updated");
-  } else {
-    res.send("something went wrong");
-  }
+    if (updatedBlog) {
+        res.send("Successfully updated");
+    } else {
+        res.send("something went wrong");
+    }
 };
 
 ///Delete Blog///
 const deleteBlog = async (req, res) => {
-  const id = req.params.id;
-  const authorId = req.params.authorid;
-  const author = await authorModel.findById(authorId);
+    const id = req.params.id;
+    const authorId = req.params.authorid;
+    const author = await authorModel.findById(authorId);
 
-  const updatedBlog = author.blogsId.filter((item) => item._id != id);
-  const removeblog = await blogModel.findOneAndDelete({ _id: id });
-  const authorBlogs = await authorModel.findOneAndUpdate(author._id, {
-    $set: {
-      blogsId: updatedBlog,
-    },
-  });
-  if (removeblog && authorBlogs) {
-    res.send("success");
-  } else {
-    res.send("something went wrong");
-  }
+    const updatedBlog = author.blogsId.filter((item) => item._id != id);
+    const removeblog = await blogModel.findOneAndDelete({ _id: id });
+    const authorBlogs = await authorModel.findOneAndUpdate(author._id, {
+        $set: {
+            blogsId: updatedBlog,
+        },
+    });
+    if (removeblog && authorBlogs) {
+        res.send("success");
+    } else {
+        res.send("something went wrong");
+    }
 };
 
 /// view comments///
 const viewComments = async (req, res) => {
-  const id = req.params.id;
-  const blog = await blogModel.findOne({ blogId: id });
-  if (blog) {
-    const comments = blog.comments;
-    res.status(200).send(comments);
-  } else {
-    res.status(404).send("comments not found");
-  }
+    const id = req.params.id;
+    const blog = await blogModel.findOne({ blogId: id });
+    if (blog) {
+        const comments = blog.comments;
+        res.status(200).send(comments);
+    } else {
+        res.status(404).send("comments not found");
+    }
 };
 
 /// view likes///
 const viewLikes = async (req, res) => {
-  const id = req.params.id;
-  const blog = await blogModel.findOne({ blogId: id });
-  if (blog) {
-    const likes = blog.likes;
-    res.status(200).send(likes);
-  } else {
-    res.status(404).send("Likes not found");
-  }
+    const id = req.params.id;
+    const blog = await blogModel.findOne({ blogId: id });
+    if (blog) {
+        const likes = blog.likes;
+        res.status(200).send(likes);
+    } else {
+        res.status(404).send("Likes not found");
+    }
 };
 
 //// Update Account /////
 const updateAccount = async (req, res) => {
-  const id = req.params.id;
-  const author = await authorModel.findById(id);
+    const id = req.params.id;
+    const author = await authorModel.findById(id);
 
-  const { username, phone, image } = req.body;
-  const updatedAuthor = await authorModel.findOneAndUpdate(author._id, {
-    $set: {
-      username: username,
-      phone: phone,
-    },
-  });
+    const { username, phone, image } = req.body;
+    const updatedAuthor = await authorModel.findOneAndUpdate(author._id, {
+        $set: {
+            username: username,
+            phone: phone,
+        },
+    });
 
-  if (updatedAuthor) {
-    res.send("Successfully Updated");
-  } else {
-    res.send("Something went Wrong...");
-  }
+    if (updatedAuthor) {
+        res.send("Successfully Updated");
+    } else {
+        res.send("Something went Wrong...");
+    }
 };
 
 const accountStats = async (req, res) => {
-  const authorId = req.params.id;
-  const author = await authorModel.findById(authorId);
-  console.log(author);
+    const authorId = req.params.id;
+    const author = await authorModel.findById(authorId);
+    console.log(author);
 };
 module.exports = {
-  authorRegister,
-  authorLogin,
-  getAccount,
-  getAuthor,
-  createBlog,
-  postedBolgs,
-  updateBlog,
-  blogById,
-  deleteBlog,
-  viewLikes,
-  viewComments,
-  // adddComment,
-  updateAccount,
-  accountStats,
+    authorRegister,
+    authorLogin,
+    getAccount,
+    getAuthor,
+    createBlog,
+    updateBlog,
+    blogById,
+    deleteBlog,
+    viewLikes,
+    viewComments,
+    // adddComment,
+    updateAccount,
+    accountStats,
 };
