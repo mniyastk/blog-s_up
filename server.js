@@ -13,21 +13,21 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(
-  cors({
-    origin: "https://blogsup.shop",
-    credentials: true,
-  })
+    cors({
+        origin: "https://blogsup.shop",
+        credentials: true,
+    })
 );
 
 try {
-  mongoose
-    .connect(process.env.MONGO_CONNECTION_STRING)
-    .then(() => console.log("db connected"))
-    .catch((err) => {
-      console.log(err.message);
-    });
+    mongoose
+        .connect(process.env.MONGO_CONNECTION_STRING)
+        .then(() => console.log("db connected"))
+        .catch((err) => {
+            console.log(err.message);
+        });
 } catch (error) {
-  console.log(error.message);
+    console.log(error.message);
 }
 
 app.use("/author", authorRoute);
@@ -35,5 +35,5 @@ app.use("/user", userRoute);
 app.use("/admin", adminRoute);
 
 app.listen(process.env.PORT, () => {
-  console.log("server running ");
+    console.log("server running ");
 });
